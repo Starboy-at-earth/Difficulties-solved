@@ -1,0 +1,20 @@
+A method that is said to be deprecated gradually: dataparallel. The code needed to be embedded are very simple.
+          1st: Use 'os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1"' to designate the to-be-utilized GPU. Here we just have two RTX 2080Ti.
+          2st: Use 'model = torch.nn.DataParallel(model)' to decorate your forward-propagation model.
+          3st: Use 'self.model = model.cuda()' to move your model to GPU 0. Note that the second step just distributes the splitted huge
+               batch.
+B method that is the most popular pattern to do this kind of training. Different from the A method, this method builds proc. (which is a 
+specific terminology in computer science, used to allocate memory resource) for each GPU, and therefore is four times faster. 
+          1st: use 'torch.distributed.init_process_group(backend='nccl', init_method='tcp://localhost:23456', rank=0, world_size=1)' to 
+               desighnate the host node (rank = 0) to update weight parameters. The 'nccl' is the officially recommended communication pattern
+               between the nodes.
+               
+          2st: train_sampler = torch.utils.data.distributed.DistributedSampler(self.train_img_ann)
+               self.dataloader_train = torch.utils.data.DataLoader(
+                    self.train_img_ann,
+                    batch_size=parser.args.train_batch_size,
+                    shuffle=(train_sampler is None),
+                    num_workers=4,
+                    pin_memory=True,
+                    sampler=train_sampler
+                )
