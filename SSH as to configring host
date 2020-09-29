@@ -1,0 +1,7 @@
+sudo apt install openssh-server
+sudo systemctl status ssh
+
+if the above one prompts activated, then input the following command in the console:
+  sudo ufw allow ssh   #Comment: I guess ufw is a shorthand for universal fire wall.
+
+After the above three commands are executed, then you should install the client on your own working device.
